@@ -1,0 +1,47 @@
+<div id="root"></div>
+
+<script>
+  const errors = {
+    invalidComponent: "Component is not a string or function",
+  };
+
+  const renderComponent = (component, children) => {
+    // basic DOM element
+    if (typeof component === "string") {
+      //console.log({ component, children });
+      const el = document.createElement(component);
+
+      let childrenElements;
+      if (typeof children === "string") childrenElements = [children];
+      else if (Array.isArray(children)) childrenElements = children;
+      else childrenElements = [];
+      childrenElements.forEach((child) => {
+        if (typeof child === "string" || typeof child === "object")
+          el.append(child);
+        else if (typeof child === "function") el.append(child());
+        else throw errors.invalidComponent;
+      });
+
+      return el;
+    }
+
+    // component
+    else if (typeof component === "function") return component();
+    // sad trombone
+    else throw `component is not a string or function`;
+  };
+
+  const lib = {
+    render: (root, rootComponent) => {
+      root.append(renderComponent(rootComponent));
+    },
+  };
+
+  // sample app
+  const Greeting = () => renderComponent("div", "Hey, hi there");
+
+  const App = () =>
+    renderComponent("div", [Greeting, renderComponent("div", "bye, see ya")]);
+
+  lib.render(document.getElementById("root"), App);
+</script>

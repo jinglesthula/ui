@@ -1,0 +1,38 @@
+<div id="root"></div>
+
+<script>
+  const lib = {
+    render: ((root, baseComponent) => {
+      baseComponent(node => root.append(node))
+    }),
+    component: (type, props, children = []) => {
+      let node // used when the component is a regular DOM element
+      let childrenComponents
+
+      return (renderNode) => {
+        if (typeof type === 'string') {
+          node = document.createElement(type)
+          renderNode(node)
+        }
+        else if (typeof type === 'function') {
+          const component = type(props)
+          component(componentNode => {
+            node = componentNode
+            renderNode(componentNode)
+          })
+        }
+
+        children.forEach(child => {
+          node.append(child().render())
+        })
+      }
+    }
+  }
+
+  const App = ({ name }) => lib.component('div', null, [
+    () => ({ render: () => 'Hello, ' }),
+    () => ({ render: () => name }),
+  ])
+
+  lib.render(document.getElementById("root"), lib.component(App, {name: 'Joe'}))
+</script>
